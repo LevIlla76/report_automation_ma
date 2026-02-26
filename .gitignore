@@ -1,0 +1,84 @@
+# =========================
+# 🐍 Python & Backend
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+.venv/
+env/
+.env
+
+# PaddleOCR & Models Cache
+.paddlex/
+.paddleocr/
+
+# =========================
+# ⚛️ Node.js & Frontend
+# =========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+.npm/
+.yarn/
+*.log
+
+# =========================
+# 📁 Project-Specific & Outputs
+# =========================
+# Ignore generated report files but keep the directory structure
+backend/output/*.docx
+!backend/output/.gitkeep
+
+# Ignore debug images and folders
+debug_output/
+backend/debug_output/
+tests/debug_input_*.jpg
+tests/temp_*.png
+tests/test_diag_copy.png
+tests/test_diag_local.png
+
+# Ignore test results and generated docs in tests folder
+tests/extraction_results.txt
+tests/Network_Report_test_*.docx
+
+# Ignore packaged release files
+Project_Release.zip
+
+# =========================
+# 💻 OS & System Files
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.lnk
+OCR System.lnk
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
