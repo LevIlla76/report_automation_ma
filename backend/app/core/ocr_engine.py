@@ -348,15 +348,16 @@ class OCROngine:
         try:
             with self.lock:
                 result = self.ocr.ocr(temp_path)
-            if isinstance(result, list) and len(result) > 0:
-                res_dict = result[0]
-            else:
+            
+            # เช็คว่าผลลัพธ์ว่างเปล่าหรือไม่
+            if not result or not result[0]:
                 return []
+            res_data = result[0]
+            
         except Exception as e:
             print(f"   ❌ OCR Error: {e}")
             return []
         finally:
-            # 🌟 เพิ่มส่วนนี้เข้าไป เพื่อลบไฟล์ temp ของ debug ทิ้งหลังใช้เสร็จ
             if os.path.exists(temp_path):
                 try: os.remove(temp_path)
                 except: pass
@@ -364,20 +365,38 @@ class OCROngine:
         vis_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         found_texts = []
         
-        texts = res_dict.get('rec_texts', [])
-        boxes = res_dict.get('dt_polys', [])
-
         print(f"\n--- [DEBUG] All Detected Texts in {prefix} ---")
-        for i in range(len(texts)):
-            txt = str(texts[i]).strip()
-            found_texts.append(txt)
-            
-            # พิมพ์ค่าทั้งหมดที่ detect ได้ออกมาดู
-            print(f"[{i:02d}] {txt}") 
-
-            if i < len(boxes):
-                box = np.array(boxes[i]).astype(np.int32).reshape((-1, 1, 2))
-                cv2.polylines(vis_img, [box], True, (0, 0, 255), 2)
+        
+        # 🌟 รองรับผลลัพธ์แบบ List (PaddleOCR Classic)
+        if isinstance(res_data, list):
+            for i, item in enumerate(res_data):
+                if isinstance(item, list) and len(item) == 2:
+                    box, content = item
+                    text, score = content
+                    txt = str(text).strip()
+                    found_texts.append(txt)
+                    print(f"[{i:02d}] {txt}")
+                    
+                    # วาดกรอบสี่เหลี่ยม
+                    try:
+                        pts = np.array(box).astype(np.int32).reshape((-1, 1, 2))
+                        cv2.polylines(vis_img, [pts], True, (0, 0, 255), 2)
+                    except: pass
+                    
+        # 🌟 รองรับผลลัพธ์แบบ Dictionary (PaddleX เผื่อไว้)
+        elif hasattr(res_data, 'get'):
+            texts = res_data.get('rec_texts', [])
+            boxes = res_data.get('dt_polys', [])
+            for i in range(len(texts)):
+                txt = str(texts[i]).strip()
+                found_texts.append(txt)
+                print(f"[{i:02d}] {txt}")
+                
+                if i < len(boxes):
+                    try:
+                        box = np.array(boxes[i]).astype(np.int32).reshape((-1, 1, 2))
+                        cv2.polylines(vis_img, [box], True, (0, 0, 255), 2)
+                    except: pass
 
         self._save_debug_img(f"{prefix}_RESULT.png", vis_img)
         print("-------------------------------------------\n")

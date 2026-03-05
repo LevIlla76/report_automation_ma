@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+
 export default function DynamicSlot({ slot, onUpdate }) {
     const [preview, setPreview] = useState(slot.image_base64 || null);
     const [loading, setLoading] = useState(false);
@@ -51,7 +53,7 @@ export default function DynamicSlot({ slot, onUpdate }) {
             formData.append('image', file);
             formData.append('keyword', slot.label);
             
-            const response = await axios.post('http://localhost:8000/api/process-ocr', formData);
+            const response = await axios.post(`${API_BASE}/api/process-ocr`, formData);
             
             const newData = {}; 
             

@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -33,13 +34,17 @@ app.include_router(endpoints.router, prefix="/api")
 # 🌟 4. โค้ดส่วน Production (ทำหน้าที่เสิร์ฟหน้าเว็บ Frontend แทน Node.js)
 # ==============================================================
 if getattr(sys, 'frozen', False):
-    # กรณีรันจากไฟล์ .exe
-    base_dir = sys._MEIPASS
-    frontend_dir = os.path.join(base_dir, "out")
+    # ถ้าเป็น .exe
+    base_path = Path(sys._MEIPASS)
 else:
-    # กรณีรันปกติจากไฟล์ .py
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    frontend_dir = os.path.join(base_dir, "frontend", "out")
+    # ถ้าเป็น .py ปกติ
+    base_path = Path(__file__).parent.parent.parent / "frontend"
+
+frontend_dir = base_path / "out"
+
+# เพิ่มบรรทัดนี้เพื่อเช็คว่า Path ถูกต้องไหม (ถ้าไม่เจอแอปจะฟ้อง Error ชัดขึ้น)
+if frontend_dir.exists():
+    app.mount("/_next", StaticFiles(directory=str(frontend_dir / "_next")), name="next")
 
 # ตรวจสอบว่ามีโฟลเดอร์ out (ที่ Build จาก Next.js) หรือไม่
 if os.path.exists(frontend_dir):

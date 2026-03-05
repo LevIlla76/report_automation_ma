@@ -1,0 +1,140 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"          # e.g. v1.0.0, v1.2.3-beta
+  workflow_dispatch:       # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write          # Needed to create GitHub Releases
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1 — Build Python backend with PyInstaller
+  # ─────────────────────────────────────────────────────────────
+  build-backend:
+    name: Build Python Backend (PyInstaller)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build backend executable
+        run: |
+          pyinstaller server.spec --clean --noconfirm
+        # Output: dist/server/ directory
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist
+          path: dist/server/
+          retention-days: 1
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2 — Build Next.js frontend (static export)
+  # ─────────────────────────────────────────────────────────────
+  build-frontend:
+    name: Build Next.js Frontend (Static Export)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Next.js static export
+        working-directory: frontend
+        run: npm run build
+        env:
+          # Point API calls to the local backend when packaged
+          NEXT_PUBLIC_API_URL: "http://localhost:8000"
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-out
+          path: frontend/out/
+          retention-days: 1
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 3 — Package everything into Electron .exe installer
+  # ─────────────────────────────────────────────────────────────
+  build-electron:
+    name: Package Electron App (NSIS Installer)
+    runs-on: windows-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: electron/package-lock.json
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-dist
+          path: backend_dist/server/
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-out
+          path: frontend/out/
+
+      - name: Install Electron dependencies
+        working-directory: electron
+        run: npm ci
+
+      - name: Build & Publish Electron app
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set version from git tag (e.g. v1.0.0 → 1.0.0)
+          APP_VERSION: ${{ github.ref_name }}
+        run: |
+          # Strip leading 'v' from tag name → clean semver
+          $tag = "$env:APP_VERSION" -replace '^v', ''
+          Write-Host "Building version: $tag"
+
+          # Patch version in electron/package.json
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          $pkg.version = $tag
+          $pkg | ConvertTo-Json -Depth 10 | Set-Content package.json
+
+          npm run build:publish
+
+      - name: Upload installer artifact (for inspection)
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: ../dist/*.exe
+          retention-days: 7

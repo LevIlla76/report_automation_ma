@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading...</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #1e1f22 0%, #2b2d31 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 40px 48px;
+      width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(88,101,242,0.2);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .logo-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #5865f2, #3b82f6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 8px 24px rgba(88,101,242,0.4);
+    }
+
+    .app-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .app-sub {
+      font-size: 13px;
+      color: #72767d;
+      margin-top: -8px;
+    }
+
+    .status-area {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-text {
+      font-size: 13px;
+      color: #b5bac1;
+      text-align: center;
+      min-height: 18px;
+      transition: opacity 0.3s;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #5865f2, #3b82f6);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { filter: brightness(1); }
+      50%  { filter: brightness(1.3); }
+      100% { filter: brightness(1); }
+    }
+
+    .version {
+      font-size: 11px;
+      color: #4e5058;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">📊</div>
+      <div class="app-name">OCR Report Automation</div>
+      <div class="app-sub">Network Report Generation System</div>
+    </div>
+
+    <div class="status-area">
+      <div class="status-text" id="statusText">Starting services...</div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div class="version">v<span id="versionText">1.0.0</span></div>
+  </div>
+
+  <script>
+    const steps = [
+      { text: 'Initializing OCR engine...', width: '20%' },
+      { text: 'Loading AI models...', width: '40%' },
+      { text: 'Starting backend server...', width: '65%' },
+      { text: 'Preparing interface...', width: '85%' },
+      { text: 'Almost ready...', width: '95%' },
+    ];
+
+    let stepIndex = 0;
+    const statusEl = document.getElementById('statusText');
+    const barEl = document.getElementById('progressBar');
+
+    function nextStep() {
+      if (stepIndex >= steps.length) return;
+      const s = steps[stepIndex];
+      statusEl.style.opacity = '0';
+      setTimeout(() => {
+        statusEl.textContent = s.text;
+        barEl.style.width = s.width;
+        statusEl.style.opacity = '1';
+        stepIndex++;
+      }, 200);
+    }
+
+    nextStep();
+    const iv = setInterval(nextStep, 2200);
+
+    // Cleanup interval when done
+    window.addEventListener('beforeunload', () => clearInterval(iv));
+  </script>
+</body>
+</html>

@@ -8,6 +8,12 @@ import DynamicSlot from '@/components/DynamicSlot';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+// API base URL — resolved at build time via next.config.mjs env injection.
+// In Electron packaged mode: FastAPI serves both frontend & API on port 8000
+// so relative paths (/api/...) would also work, but explicit base is clearer.
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
@@ -74,7 +80,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await axios.post('http://localhost:8000/api/analyze', formData, {
+      const response = await axios.post(`${API_BASE}/api/analyze`, formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percentCompleted);
@@ -145,7 +151,7 @@ export default function Home() {
       const slotsBlob = new Blob([slotsJson], { type: 'application/json' });
       formData.append('slots', slotsBlob, 'slots.json'); 
 
-      const response = await axios.post('http://localhost:8000/api/generate', formData, {
+      const response = await axios.post(`${API_BASE}/api/generate`, formData, {
         responseType: 'blob',
         headers: { 'Content-Type': 'multipart/form-data' } 
       });
@@ -212,7 +218,7 @@ export default function Home() {
             formData.append('image', file);
             formData.append('keyword', targetSlot.label);
 
-            const response = await axios.post('http://localhost:8000/api/process-ocr', formData);
+            const response = await axios.post(`${API_BASE}/api/process-ocr`, formData);
             
             const newData = { ...targetSlot, image_base64: base64Image };
             if (response.data.f5_data) {

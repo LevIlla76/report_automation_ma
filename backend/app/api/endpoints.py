@@ -23,9 +23,12 @@ from ..schemas.schemas import AnalysisResponse
 
 router = APIRouter()
 
-TEMP_DIR = "backend/temp"
+# Support env var override when running as packaged .exe (set by server_entry.py)
+TEMP_DIR = os.environ.get("BACKEND_TEMP_DIR", "backend/temp")
+OUTPUT_DIR = os.environ.get("BACKEND_OUTPUT_DIR", "backend/output")
 
 os.makedirs(TEMP_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 ocr_engine = OCROngine()

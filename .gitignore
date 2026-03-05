@@ -69,6 +69,15 @@ tests/Network_Report_test_*.docx
 Project_Release.zip
 
 # =========================
+# 🖥️ Electron & Build Artifacts
+# =========================
+electron/node_modules/
+dist/
+backend_dist/
+*.exe
+!electron/assets/icon.ico
+
+# =========================
 # 💻 OS & System Files
 # =========================
 .DS_Store
