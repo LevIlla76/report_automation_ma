@@ -1,6 +1,6 @@
 {
   "name": "report-automation",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Network Report Automation System",
   "main": "src/main.js",
   "scripts": {

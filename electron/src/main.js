@@ -194,7 +194,10 @@ function createSplashWindow() {
       contextIsolation: true,
     },
   });
-  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+  // Pass real app version via query string — splash has no preload
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'), {
+    query: { v: app.getVersion() },
+  });
   splashWindow.on('closed', () => { splashWindow = null; });
 }
 

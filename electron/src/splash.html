@@ -144,13 +144,13 @@
     const barEl = document.getElementById('progressBar');
     const verEl = document.getElementById('versionText');
 
-    // Ask main process for real app version via IPC
-    if (window.electronAPI && window.electronAPI.getAppVersion) {
+    // Read version from URL query ?v=1.0.2 (set by main process via loadFile query option)
+    const urlVer = new URLSearchParams(window.location.search).get('v');
+    if (urlVer) {
+      verEl.textContent = urlVer;
+    } else if (window.electronAPI && window.electronAPI.getAppVersion) {
+      // Fallback: IPC (only works if preload is attached)
       window.electronAPI.getAppVersion().then(v => { verEl.textContent = v; });
-    } else {
-      // Fallback: read from URL param ?v=1.0.1
-      const urlVer = new URLSearchParams(window.location.search).get('v');
-      if (urlVer) verEl.textContent = urlVer;
     }
 
     function nextStep() {
