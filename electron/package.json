@@ -1,6 +1,6 @@
 {
   "name": "report-automation",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Network Report Automation System",
   "main": "src/main.js",
   "scripts": {
@@ -45,10 +45,9 @@
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
-      "installerLanguages": ["en_US"],
+      "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "OCR Report Automation",
