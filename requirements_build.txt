@@ -1,0 +1,16 @@
+# requirements_build.txt — Minimal deps for PyInstaller build
+# Only what the backend actually needs at RUNTIME.
+# Keep this lean to prevent bloated .exe bundles.
+fastapi>=0.109.2
+uvicorn>=0.27.1
+python-multipart>=0.0.9
+paddleocr>=2.7.0
+paddlepaddle>=3.0.0
+opencv-python>=4.9.0.80
+python-docx>=1.1.0
+pydantic>=2.6.1
+numpy==1.26.4
+pillow>=10.2.0
+python-magic-bin>=0.4.14
+chardet>=5.0.0,<6.0.0
+pyinstaller>=6.0.0

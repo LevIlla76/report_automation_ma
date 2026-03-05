@@ -29,6 +29,7 @@ MANIFEST
 venv/
 .venv/
 env/
+build_venv/
 .env
 
 # PaddleOCR & Models Cache

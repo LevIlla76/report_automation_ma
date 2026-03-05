@@ -8,6 +8,15 @@ import os
 import sys
 from pathlib import Path
 
+# ── Fix stdout/stderr encoding for Windows frozen console ─────
+# Prevents UnicodeEncodeError when printing emoji or Thai text
+if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 # ── PaddlePaddle flags (must be first) ────────────────────────
 os.environ["FLAGS_enable_pir_api"] = "0"
 os.environ["FLAGS_enable_pir_in_executor"] = "0"

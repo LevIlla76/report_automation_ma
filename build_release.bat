@@ -18,20 +18,22 @@ echo   Target version: %VERSION%
 echo ===========================================================
 echo.
 
-:: ── Pre-flight checks ───────────────────────────────────────
-if not exist "backend\venv\Scripts\activate.bat" (
-    COLOR 0C
-    echo [ERROR] backend\venv not found.
-    echo Run the Report_app.bat first to create the venv, or:
-    echo   cd backend ^&^& python -m venv venv ^&^& venv\Scripts\activate ^&^& pip install -r requirements.txt
-    pause & exit /b 1
-)
+:: ── Pre-flight: Node.js ─────────────────────────────────────
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
     COLOR 0C
     echo [ERROR] Node.js is not installed or not in PATH.
     pause & exit /b 1
 )
+
+:: ── Pre-flight: pyinstaller ─────────────────────────────────
+python -c "import PyInstaller" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [SETUP] Installing pyinstaller into global Python...
+    pip install pyinstaller -q
+)
+echo [CHECK] pyinstaller ready.
+echo.
 
 :: ──────────────────────────────────────────
 :: Step 1: Build Next.js frontend
@@ -50,17 +52,9 @@ echo       Frontend built ^→ frontend/out/
 echo.
 
 :: ──────────────────────────────────────────
-:: Step 2: Build Python backend with PyInstaller
+:: Step 2: Build Python backend (clean venv)
 :: ──────────────────────────────────────────
 echo [2/4] Building Python backend (PyInstaller)...
-call backend\venv\Scripts\activate
-
-:: Install pyinstaller into venv if missing
-backend\venv\Scripts\python.exe -c "import PyInstaller" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo       Installing PyInstaller into venv...
-    pip install pyinstaller -q
-)
 
 pyinstaller server.spec --clean --noconfirm
 if %errorlevel% neq 0 (

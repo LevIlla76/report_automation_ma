@@ -1,12 +1,28 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, shell, dialog, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, nativeTheme, protocol, net: electronNet } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 const path = require('path');
+const fs = require('fs');
 const { spawn } = require('child_process');
 const net = require('net');
 const treeKill = require('tree-kill');
+
+// ============================================================
+// CUSTOM PROTOCOL — serve frontend_out/ via app:// scheme
+// ============================================================
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+]);
 
 // ============================================================
 // LOGGING SETUP
@@ -47,7 +63,8 @@ function getFrontendUrl() {
   if (isDev) {
     return 'http://localhost:3000';
   }
-  return `http://localhost:${BACKEND_PORT}`;
+  // Packaged: serve via custom app:// scheme (registered below in app.whenReady)
+  return 'app://frontend/index.html';
 }
 
 // ============================================================
@@ -293,6 +310,22 @@ function setupUpdater() {
 // ============================================================
 app.whenReady().then(async () => {
   nativeTheme.themeSource = 'dark';
+
+  // Register app:// protocol to serve static frontend files
+  if (!isDev) {
+    const frontendDir = path.join(process.resourcesPath, 'frontend_out');
+    protocol.handle('app', (request) => {
+      // Strip scheme: "app://frontend/index.html" -> "/index.html"
+      let urlPath = request.url.replace(/^app:\/\/frontend/, '');
+      // Decode URI and strip query/hash
+      urlPath = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
+      // Default to index.html
+      if (urlPath === '' || urlPath === '/') urlPath = '/index.html';
+      const filePath = path.join(frontendDir, urlPath);
+      log.info('[Protocol] Serving:', filePath);
+      return electronNet.fetch(`file://${filePath}`);
+    });
+  }
 
   // Show splash immediately
   createSplashWindow();

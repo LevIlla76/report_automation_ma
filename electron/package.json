@@ -46,7 +46,7 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowDirChange": true,
+      "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "OCR Report Automation",
@@ -67,6 +67,6 @@
   },
   "devDependencies": {
     "electron": "^33.4.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^26.8.2"
   }
 }
