@@ -1,6 +1,6 @@
 {
   "name": "report-automation",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Network Report Automation System",
   "main": "src/main.js",
   "scripts": {
@@ -45,14 +45,17 @@
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerLanguages": ["en_US"],
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "OCR Report Automation",
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
     },
     "publish": {
       "provider": "github",

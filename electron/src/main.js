@@ -254,8 +254,8 @@ ipcMain.on('window:close', () => mainWindow?.close());
 ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() ?? false);
 ipcMain.handle('app:getVersion', () => app.getVersion());
 
-// Update controls
-ipcMain.on('updater:install', () => autoUpdater.quitAndInstall());
+// Update controls — isSilent=true, isForceRunAfter=true → silent install then auto-relaunch
+ipcMain.on('updater:install', () => autoUpdater.quitAndInstall(true, true));
 
 // ============================================================
 // AUTO-UPDATER SETUP
