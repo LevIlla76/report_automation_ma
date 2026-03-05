@@ -249,6 +249,7 @@ ipcMain.on('window:maximize', () => {
 });
 ipcMain.on('window:close', () => mainWindow?.close());
 ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() ?? false);
+ipcMain.handle('app:getVersion', () => app.getVersion());
 
 // Update controls
 ipcMain.on('updater:install', () => autoUpdater.quitAndInstall());
@@ -264,6 +265,19 @@ function setupUpdater() {
 
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
+
+  // For private GitHub repos: set token so electron-updater can access releases API
+  // Token is bundled via electron-builder's publish config — no need to hardcode here.
+  // If repo is private, add GH_TOKEN to updater's requestHeaders:
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'LevIlla76',
+    repo: 'report_automation_ma',
+    private: false,  // set true if repo is private + token needed
+  });
+
+  log.info(`[Updater] App version: ${app.getVersion()}`);
+  log.info('[Updater] Checking GitHub releases for updates...');
 
   autoUpdater.on('checking-for-update', () => {
     log.info('[Updater] Checking for updates...');

@@ -9,6 +9,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   close: () => ipcRenderer.send('window:close'),
   isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
 
+  // App info
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
+
   // Auto-updater
   installUpdate: () => ipcRenderer.send('updater:install'),
   onUpdaterEvent: (event, callback) => {

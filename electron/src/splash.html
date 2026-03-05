@@ -127,7 +127,7 @@
       </div>
     </div>
 
-    <div class="version">v<span id="versionText">1.0.0</span></div>
+    <div class="version">v<span id="versionText">loading...</span></div>
   </div>
 
   <script>
@@ -142,6 +142,16 @@
     let stepIndex = 0;
     const statusEl = document.getElementById('statusText');
     const barEl = document.getElementById('progressBar');
+    const verEl = document.getElementById('versionText');
+
+    // Ask main process for real app version via IPC
+    if (window.electronAPI && window.electronAPI.getAppVersion) {
+      window.electronAPI.getAppVersion().then(v => { verEl.textContent = v; });
+    } else {
+      // Fallback: read from URL param ?v=1.0.1
+      const urlVer = new URLSearchParams(window.location.search).get('v');
+      if (urlVer) verEl.textContent = urlVer;
+    }
 
     function nextStep() {
       if (stepIndex >= steps.length) return;
