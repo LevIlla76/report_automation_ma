@@ -78,6 +78,16 @@ backend_dist/
 *.exe
 !electron/assets/icon.ico
 
+# Root-level npm artifacts (not part of project)
+/node_modules/
+/package.json
+/package-lock.json
+
+# Log files
+*.log
+log.txt
+build_log.txt
+
 # =========================
 # 💻 OS & System Files
 # =========================
